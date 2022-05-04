@@ -1,22 +1,41 @@
 <template>
+  <Teleport to="body">
+    <BaseDialog
+      v-if="inputIsInvalid"
+      title="Invalid Input"
+      @close="confirmError"
+    >
+      <template #default>
+        <p>Unfortunately, at least one input value is invalid.</p>
+        <p>
+          Please check all inputs and make sure you enter at least a few
+          characters into each input field.
+        </p>
+      </template>
+      <template #actions>
+        <BaseButton @click="confirmError">Okay</BaseButton>
+      </template>
+    </BaseDialog>
+  </Teleport>
   <BaseCard>
-    <form>
+    <form @submit.prevent="submitData">
       <div class="form-control">
         <label for="title">Title</label>
-        <input id="title" name="title" type="text" />
+        <input id="title" name="title" type="text" ref="titleInput" />
       </div>
       <div class="form-control">
-        <label for="description">Title</label>
+        <label for="description">Description</label>
         <textarea
           id="description"
           name="description"
           type="text"
           rows="3"
+          ref="descriptionInput"
         ></textarea>
       </div>
       <div class="form-control">
         <label for="link">Link</label>
-        <input id="link" name="link" type="url" />
+        <input id="link" name="link" type="url" ref="linkInput" />
       </div>
       <div>
         <BaseButton type="submit">Add Resource</BaseButton>
@@ -24,6 +43,43 @@
     </form>
   </BaseCard>
 </template>
+
+<script>
+import BaseButton from '../UI/BaseButton.vue';
+export default {
+  inject: ['addResource'],
+  data() {
+    return {
+      inputIsInvalid: false,
+    };
+  },
+  methods: {
+    submitData() {
+      const enteredTitle = this.$refs.titleInput.value;
+      const enteredDescription = this.$refs.descriptionInput.value;
+      const enteredLink = this.$refs.linkInput.value;
+
+      if (
+        enteredTitle.trim() === '' ||
+        enteredDescription.trim() === '' ||
+        enteredLink.trim() === ''
+      ) {
+        this.inputIsInvalid = true;
+        return;
+      }
+
+      this.addResource(enteredTitle, enteredDescription, enteredLink);
+      this.$refs.titleInput.value = '';
+      this.$refs.descriptionInput.value = '';
+      this.$refs.linkInput.value = '';
+    },
+    confirmError() {
+      this.inputIsInvalid = false;
+    },
+  },
+  components: { BaseButton },
+};
+</script>
 
 <style scoped>
 label {
