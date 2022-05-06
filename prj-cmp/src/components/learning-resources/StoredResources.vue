@@ -1,7 +1,8 @@
 <template>
   <ul>
     <LearningResource
-      v-for="res in resources"
+      v-for="res in resources.value"
+      :id="res.id"
       :key="res.id"
       :title="res.title"
       :description="res.description"
